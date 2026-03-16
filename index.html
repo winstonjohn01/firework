@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bay of Lights - V14 Ultimate with BGM</title>
+    <title>Bay of Lights - V15 Tri-Color Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
 
@@ -130,7 +130,7 @@
     <div id="top-bar">
         <div class="brand">
             <h1>Bay of Lights</h1>
-            <span>BGM Integrated • 95.5% RTP Orchestrated</span>
+            <span>Tri-Color Tubes • 95.5% RTP</span>
         </div>
         <div class="stats">
             <button id="btn-bgm" onclick="toggleBGM()">🔊 BGM ON</button>
@@ -151,7 +151,7 @@
 <script>
     // --- BGM 控制引擎 ---
     const bgmPlayer = document.getElementById('bgm-audio');
-    bgmPlayer.volume = 0.5; // 设置初始音量为 50%，给音效留出空间
+    bgmPlayer.volume = 0.5; 
     let bgmStarted = false;
     let bgmMuted = false;
 
@@ -167,7 +167,6 @@
         }
     }
 
-    // 浏览器要求用户首次交互后才能播放音频
     function tryStartBGM() {
         if (!bgmStarted && !bgmMuted) {
             bgmPlayer.play().then(() => {
@@ -178,7 +177,7 @@
         }
     }
 
-    // --- 强大的音效与心跳引擎 ---
+    // --- 音效与心跳引擎 ---
     let audioCtx = null;
     const SoundEngine = {
         init() {
@@ -219,7 +218,6 @@
         }
     };
 
-    // --- 心跳张力节拍器参数 ---
     let lastPulseTime = 0;
     let pulseInterval = 800;
 
@@ -290,13 +288,13 @@
     }
 
     function igniteAllIdle() {
-        tryStartBGM(); // 尝试启动BGM
+        tryStartBGM(); 
         SoundEngine.init();
         lanes.forEach(l => { if(l.state === 'idle') handleLaneAction(l.id); });
     }
 
     function handleLaneAction(id) {
-        tryStartBGM(); // 尝试启动BGM
+        tryStartBGM(); 
         SoundEngine.init();
         const lane = lanes[id];
 
@@ -467,7 +465,8 @@
         for(let i=0; i<count; i++) {
             let pColor = color;
             if (isBust && Math.random() > 0.7) pColor = '#FFFFFF';
-            if (isBust && Math.random() > 0.9) pColor = '#FFD700';
+            // 绽放爆炸时，副色调跟随轨道本身的颜色，而不是硬编码的金色
+            if (isBust && Math.random() > 0.9) pColor = color; 
             particles.push(new Particle(x, y, pColor, 1.5, isBust, true));
         }
     }
@@ -552,10 +551,22 @@
         drawPalmTree(w * 0.95, renderWaterY, Math.min(w, h) * 0.15);
     }
 
+    // --- 绘制独立颜色的春节灯笼基座 ---
     function drawBase(l, renderWaterY) {
         ctx.fillStyle = '#000'; ctx.fillRect(l.xBase - 22, renderWaterY - 10, 44, 45); 
-        ctx.fillStyle = '#b71c1c'; ctx.fillRect(l.xBase - 18, renderWaterY - 10, 36, 40); 
-        ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2;
+        
+        // 动态：根据轨道颜色，给灯笼主体设置相应的暗色系
+        let baseBodyColor = l.color;
+        if (l.id === 0) baseBodyColor = '#B8860B'; // 暗金
+        if (l.id === 1) baseBodyColor = '#b71c1c'; // 暗红
+        if (l.id === 2) baseBodyColor = '#0288D1'; // 暗蓝
+
+        ctx.fillStyle = baseBodyColor; 
+        ctx.fillRect(l.xBase - 18, renderWaterY - 10, 36, 40); 
+        
+        // 动态：装饰线条直接使用轨道的亮色
+        ctx.strokeStyle = l.color; 
+        ctx.lineWidth = 2;
         ctx.beginPath(); ctx.moveTo(l.xBase - 18, renderWaterY - 10); ctx.lineTo(l.xBase + 18, renderWaterY - 10); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(l.xBase - 18, renderWaterY + 30); ctx.lineTo(l.xBase + 18, renderWaterY + 30); ctx.stroke();
         for(let i=1; i<4; i++) {
@@ -642,7 +653,10 @@
                 else {
                     ctx.shadowBlur = 20; ctx.shadowColor = l.color;
                     ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(renderX, renderScreenY, 7, 0, Math.PI*2); ctx.fill();
-                    ctx.shadowColor = '#FFD700'; ctx.fillStyle = '#fff9c4'; ctx.beginPath(); ctx.arc(renderX, renderScreenY, 4, 0, Math.PI*2); ctx.fill();
+                    
+                    // 动态：强光核心颜色也使用当前轨道的专属颜色
+                    ctx.shadowColor = l.color; ctx.fillStyle = l.color; 
+                    ctx.beginPath(); ctx.arc(renderX, renderScreenY, 4, 0, Math.PI*2); ctx.fill();
                     ctx.shadowBlur = 0;
                     
                     particles.push(new Particle(l.xBase, l.worldY + 12, l.color, cameraY > 200 ? 1.2 : 0.6, true, false));
